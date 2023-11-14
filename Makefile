@@ -20,7 +20,8 @@ DATA ?= data
 
 # --- generic rules ---
 
-all: Manifest lkddb web-out/index.html
+all: Manifest lkddb
+# all: Manifest lkddb web
 .PHONY: lkddb merge web check-ids check-pci.ids check-usb.ids check-eisa.ids check-zorro.ids clean tests tar Manifest
 
 # --- generic definitions ---
