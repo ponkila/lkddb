@@ -4,12 +4,15 @@
 #  Copyright (c) 2007-2017  Giacomo A. Catenazzi <cate@cateee.net>
 #  This is free software, see GNU General Public License v2 (or later) for details
 
+# --- instructions ---
 
-# --- configuration ---
+#  $ wget "https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.6.1.tar.xz"
 
-# Note these option could be given in command line: e.g.:
+#  $ tar -xf linux-6.6.1.tar.xz
 
-#  $ make all kdir=/pub/linux-3.0/linux-3.0.0
+#  $ make check-ids kdir=linux-6.6.1
+
+#  $ make all kdir=linux-6.6.1
 
 # kernel directory
 kdir ?= ~/kernel/linux/
