@@ -23,7 +23,6 @@ DATA ?= data
 all: Manifest lkddb web-out/index.html
 .PHONY: lkddb merge web check-ids check-pci.ids check-usb.ids check-eisa.ids check-zorro.ids clean tests tar Manifest
 
-
 # --- generic definitions ---
 
 datafiles := $(find ${DATA} -type f -name 'lkddb-*.data' ! -name 'lkddb-all.data' -print)
@@ -49,11 +48,12 @@ mrproper: clean
 # --- building lists ---
 
 lkddb:
+	@[ -d ${DATA} ] || mkdir -p ${DATA}
 	time python3 ./build-lkddb.py -v -b ${DATA}/lkddb -l ${DATA}/lkddb-%.log -k ${kdir}
 
 merge: ${DATA}/lkddb-all.data
 ${DATA}/lkddb-all.data: ${DATA}/ids.data ${datafiles} merge.py
-	@[ -d ${DATA} ] || mkdir ${DATA}
+	@[ -d ${DATA} ] || mkdir -p ${DATA}
 	time python3 ./merge.py -v -l ${DATA}/merge.log -o ${DATA}/lkddb-all.data ${datafiles} ${DATA}/ids.data
 
 web: ${DATA}/web-out/index.html
@@ -61,17 +61,20 @@ ${DATA}/web-out/index.html: ${DATA}/lkddb-all.data templates/*.html gen-web-lkdd
 	@[ -d ${DATA}/web-out ] || mkdir -p ${DATA}/web-out
 	time python3 ./gen-web-lkddb.py -v -l ${DATA}/web.log -f ${DATA}/lkddb-all.data templates/ ${DATA}/web-out/
 
-
 # These targets require extern files
 # We download files only with explicit user agreement (e.g. "make check-ids")
 
 check-pci.ids:
+	@[ -d ${DATA} ] || mkdir -p ${DATA}
 	(cd ${DATA} && wget -N https://pci-ids.ucw.cz/v2.2/pci.ids.bz2 && bzip2 -kfd pci.ids.bz2)
 check-usb.ids:
+	@[ -d ${DATA} ] || mkdir -p ${DATA}
 	(cd ${DATA} && wget -N http://www.linux-usb.org/usb.ids.bz2 && bzip2 -kfd usb.ids.bz2 )
 check-eisa.ids: ${kdir}/drivers/eisa/eisa.ids
+	@[ -d ${DATA} ] || mkdir -p ${DATA}
 	cp ${kdir}/drivers/eisa/eisa.ids ${DATA}/
 check-zorro.ids: ${kdir}/drivers/zorro/zorro.ids
+	@[ -d ${DATA} ] || mkdir -p ${DATA}
 	cp ${kdir}/drivers/zorro/zorro.ids ${DATA}/
 check-ids: check-pci.ids check-usb.ids check-eisa.ids check-zorro.ids
 
@@ -80,7 +83,6 @@ ${DATA}/ids.data: ${DATA}/pci.ids ${DATA}/usb.ids ${DATA}/eisa.ids ${DATA}/zorro
 	    echo "Missing one ids file."; echo "Run 'make check-ids' to download the needed files"; exit 1; \
 	fi
 	time python3 ./ids_importer.py -v -b ${DATA}/ids -l ${DATA}/ids.log ${DATA}/pci.ids ${DATA}/usb.ids ${DATA}/eisa.ids ${DATA}/zorro.ids
-
 
 # --- distributing ---
 
@@ -95,5 +97,5 @@ Manifest: ${all_sources}
 	for f in ${sort ${wildcard ${my_sources}}} ; do \
 	    echo $$f :  `head -3 $$f | sed -ne 's/^#:[^:]*:[ ]*\(.*\)$$/\1/p' -` >> Manifest ; \
 	done ; \
-	echo 
+	echo
 
